@@ -2,7 +2,14 @@
 
 set -euxo pipefail
 
-# Enable kata-storage service to move /run/kata-containers to large disk
+# Enable prepare service to ensure /run/kata-containers is ready for bind mount
+systemctl enable prepare-kata-containers.service
+
+# Enable mount unit to bind mount /run/kata-containers from large disk
+# This must run before kata-storage.service to ensure /run/kata-containers is on sda4
+systemctl enable run-kata-containers.mount
+
+# Enable kata-storage service to verify /run/kata-containers is on large disk
 systemctl enable kata-storage.service
 
 # Enable mount-data service to setup Kubernetes storage on /dev/sda3

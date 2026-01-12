@@ -103,6 +103,8 @@ fi
 # Create directories for bind mounts
 mkdir -p "$MOUNT_POINT/kubelet"
 mkdir -p "$MOUNT_POINT/containerd"
+# Create run-kata directory for kata-containers (used by overlay filesystem)
+mkdir -p "$MOUNT_POINT/containerd/run-kata"
 
 # Bind-mount /run/mounts/data/kubelet → /var/lib/kubelet
 KUBELET_TARGET="/var/lib/kubelet"
