@@ -1,8 +1,8 @@
 [Unit]
 Description=Setup Kata Containers storage on large disk
 DefaultDependencies=no
-After=systemd-udev-settle.service local-fs.target mount-data.service run-kata-containers.mount
-Requires=run-kata-containers.mount
+After=systemd-udev-settle.service local-fs.target mount-data.service run-kata-containers.service
+Requires=run-kata-containers.service
 Before=scratch-storage.service kata-agent.service
 ConditionPathExists=!/var/lib/kata-storage.done
 
@@ -22,8 +22,8 @@ ExecStart=/bin/sh -c 'ROOT_DISK="$(cat /tmp/root-disk 2>/dev/null || echo sda)";
 ExecStart=/bin/sh -c 'DEV="$(cat /tmp/kata-disk)"; if [ -z "$DEV" ]; then exit 0; fi; FS_TYPE=$(blkid -o value -s TYPE "$DEV" 2>/dev/null || echo ""); if [ -z "$FS_TYPE" ] || [ "$FS_TYPE" = "ntfs" ]; then echo "Formatting $DEV with ext4 (current: ${FS_TYPE:-none})..."; mkfs.ext4 -F "$DEV"; else echo "$DEV already has ext4 filesystem"; fi'
 
 # Verify /run/kata-containers is mounted on the large disk
-# The run-kata-containers.mount unit should have already bind-mounted it from /var/lib/containerd/run-kata
-ExecStart=/bin/sh -c 'TARGET=/run/kata-containers; if mountpoint -q "$TARGET"; then CURRENT_SRC=$(findmnt -n -o SOURCE "$TARGET" 2>/dev/null || echo ""); EXPECTED_SRC="/var/lib/containerd/run-kata"; if [ "$CURRENT_SRC" = "$EXPECTED_SRC" ]; then echo "$TARGET is correctly mounted from $EXPECTED_SRC"; ACTUAL_DEV=$(findmnt -n -o SOURCE -T "$TARGET" 2>/dev/null | xargs -I {} sh -c "findmnt -n -o SOURCE {} 2>/dev/null | grep -oE \"/dev/[a-z]+[0-9]+\" | head -1" || echo ""); if [ -n "$ACTUAL_DEV" ]; then echo "Verified: $TARGET is on device $ACTUAL_DEV (large disk)"; else echo "Warning: Could not determine underlying device for $TARGET"; fi; else echo "Warning: $TARGET mounted from $CURRENT_SRC but expected $EXPECTED_SRC"; echo "This should be handled by run-kata-containers.mount unit"; fi; else echo "Warning: $TARGET is not mounted. This should be handled by run-kata-containers.mount unit"; fi'
+# The run-kata-containers.service should have already bind-mounted it from /var/lib/containerd/run-kata
+ExecStart=/bin/sh -c 'TARGET=/run/kata-containers; if mountpoint -q "$TARGET"; then CURRENT_SRC=$(findmnt -n -o SOURCE "$TARGET" 2>/dev/null || echo ""); EXPECTED_SRC="/var/lib/containerd/run-kata"; if [ "$CURRENT_SRC" = "$EXPECTED_SRC" ]; then echo "$TARGET is correctly mounted from $EXPECTED_SRC"; ACTUAL_DEV=$(findmnt -n -o SOURCE -T "$TARGET" 2>/dev/null | xargs -I {} sh -c "findmnt -n -o SOURCE {} 2>/dev/null | grep -oE \"/dev/[a-z]+[0-9]+\" | head -1" || echo ""); if [ -n "$ACTUAL_DEV" ]; then echo "Verified: $TARGET is on device $ACTUAL_DEV (large disk)"; else echo "Warning: Could not determine underlying device for $TARGET"; fi; else echo "Warning: $TARGET mounted from $CURRENT_SRC but expected $EXPECTED_SRC"; echo "This should be handled by run-kata-containers.service"; fi; else echo "Warning: $TARGET is not mounted. This should be handled by run-kata-containers.service"; fi'
 
 # Mark as done
 ExecStart=/usr/bin/touch /var/lib/kata-storage.done

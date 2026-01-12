@@ -2,7 +2,7 @@
 Description=Prepare /run/kata-containers for bind mount from large disk
 DefaultDependencies=no
 After=systemd-udev-settle.service local-fs.target mount-data.service
-Before=run-kata-containers.mount kata-agent.service
+Before=run-kata-containers.service kata-agent.service
 ConditionPathExists=!/var/lib/kata-storage.done
 
 [Service]
