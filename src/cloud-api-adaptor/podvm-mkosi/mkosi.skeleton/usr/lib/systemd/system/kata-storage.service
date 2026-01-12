@@ -2,6 +2,7 @@
 Description=Setup Kata Containers storage on large disk
 DefaultDependencies=no
 After=systemd-udev-settle.service local-fs.target mount-data.service run-kata-containers.mount
+Requires=run-kata-containers.mount
 Before=scratch-storage.service kata-agent.service
 ConditionPathExists=!/var/lib/kata-storage.done
 

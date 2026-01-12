@@ -2,7 +2,8 @@
 Description=Mount /run/kata-containers on large disk
 DefaultDependencies=no
 After=systemd-udev-settle.service local-fs.target mount-data.service prepare-kata-containers.service
-Before=scratch-storage.service kata-agent.service
+Requires=prepare-kata-containers.service
+Before=scratch-storage.service kata-agent.service kata-storage.service
 Conflicts=umount.target
 Before=umount.target
 ConditionPathExists=/var/lib/containerd/run-kata
@@ -14,4 +15,4 @@ Type=none
 Options=bind
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target local-fs.target
