@@ -1,0 +1,22 @@
+[Unit]
+Description=Prepare /run/kata-containers for bind mount from large disk
+DefaultDependencies=no
+After=systemd-udev-settle.service local-fs.target mount-data.service
+Before=run-kata-containers.service kata-agent.service
+ConditionPathExists=!/var/lib/kata-storage.done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+# Ensure /var/lib/containerd/run-kata exists (created by mount-data.service)
+ExecStart=/bin/sh -c 'mkdir -p /var/lib/containerd/run-kata && echo "Created /var/lib/containerd/run-kata directory"'
+
+# If /run/kata-containers exists as a tmpfs mount, we need to unmount it first
+# But if it's just a directory (not a mount point), we can remove it to allow the bind mount
+ExecStart=/bin/sh -c 'if mountpoint -q /run/kata-containers 2>/dev/null; then CURRENT_FS=$(findmnt -n -o FSTYPE /run/kata-containers 2>/dev/null || echo ""); if [ "$CURRENT_FS" = "tmpfs" ]; then echo "Unmounting tmpfs from /run/kata-containers"; umount -l /run/kata-containers 2>/dev/null || umount /run/kata-containers 2>/dev/null || true; sleep 1; fi; fi; if [ -d /run/kata-containers ] && [ ! -L /run/kata-containers ] && ! mountpoint -q /run/kata-containers 2>/dev/null; then echo "Removing existing /run/kata-containers directory to allow bind mount"; rm -rf /run/kata-containers 2>/dev/null || true; fi; mkdir -p /run/kata-containers && echo "Prepared /run/kata-containers for bind mount"'
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Mount /run/kata-containers on large disk
+DefaultDependencies=no
+After=systemd-udev-settle.service local-fs.target mount-data.service prepare-kata-containers.service
+Requires=prepare-kata-containers.service
+Before=scratch-storage.service kata-agent.service kata-storage.service
+ConditionPathExists=/var/lib/containerd/run-kata
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+# Bind mount /var/lib/containerd/run-kata to /run/kata-containers
+ExecStart=/bin/sh -c 'if ! mountpoint -q /run/kata-containers 2>/dev/null; then mkdir -p /run/kata-containers && mount --bind /var/lib/containerd/run-kata /run/kata-containers && echo "Bind-mounted /var/lib/containerd/run-kata to /run/kata-containers"; else CURRENT_SRC=$(findmnt -n -o SOURCE /run/kata-containers 2>/dev/null || echo ""); if [ "$CURRENT_SRC" != "/var/lib/containerd/run-kata" ]; then echo "Warning: /run/kata-containers already mounted from $CURRENT_SRC, expected /var/lib/containerd/run-kata"; fi; fi'
+
+[Install]
+WantedBy=multi-user.target
