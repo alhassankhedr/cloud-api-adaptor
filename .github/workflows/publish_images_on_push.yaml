@@ -24,11 +24,28 @@ jobs:
     steps:
       - name: Check DockerHub secrets
         run: |
-          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-            echo "::error ::Missing or empty Docker Hub secrets. Please ensure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are set in repository secrets (Settings → Secrets and variables → Actions)."
+          MISSING_SECRETS=()
+          
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+            MISSING_SECRETS+=("DOCKERHUB_USERNAME")
+          fi
+          
+          if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            MISSING_SECRETS+=("DOCKERHUB_TOKEN")
+          fi
+          
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "::error ::Missing or empty Docker Hub secret(s): ${MISSING_SECRETS[*]}"
+            echo "Please ensure the following secret(s) are set in repository secrets (Settings → Secrets and variables → Actions):"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "  - $secret"
+            done
             exit 1
           fi
+          
           echo "✓ Docker Hub secrets are configured"
+          echo "  - DOCKERHUB_USERNAME: ✓"
+          echo "  - DOCKERHUB_TOKEN: ✓"
 
   caa:
     needs: validate-docker-secrets
