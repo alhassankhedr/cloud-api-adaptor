@@ -18,7 +18,20 @@ concurrency:
 permissions: {}
 
 jobs:
+  validate-docker-secrets:
+    name: Validate Docker Hub secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check DockerHub secrets
+        run: |
+          if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ] || [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+            echo "::error ::Missing or empty Docker Hub secrets. Please ensure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are set in repository secrets (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          echo "✓ Docker Hub secrets are configured"
+
   caa:
+    needs: validate-docker-secrets
     uses: ./.github/workflows/caa_build_and_push_per_arch.yaml
     with:
       git_ref: ${{ github.sha }}
@@ -30,6 +43,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   csi-wrapper:
+    needs: validate-docker-secrets
     uses: ./.github/workflows/csi_wrapper_images.yaml
     with:
       image_tags: latest,${{ github.sha }}
@@ -42,6 +56,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   peerpod-ctrl:
+    needs: validate-docker-secrets
     uses: ./.github/workflows/peerpod-ctrl_image.yaml
     with:
       image_tags: latest,${{ github.sha }}
@@ -55,6 +70,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   webhook:
+    needs: validate-docker-secrets
     uses: ./.github/workflows/webhook_image.yaml
     with:
       image_tags: ${{ github.sha }},latest
