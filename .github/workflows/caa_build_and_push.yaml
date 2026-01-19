@@ -4,8 +4,8 @@ on:
   workflow_call:
     inputs:
       registry:
-        default: 'quay.io/confidential-containers'
-        description: 'Image registry (e.g. "quay.io/confidential-containers") where the built image will be pushed to'
+        default: 'docker.io/loricadev'
+        description: 'Image registry (e.g. "docker.io/loricadev") where the built image will be pushed to'
         required: false
         type: string
       dev_arches:
@@ -39,7 +39,9 @@ on:
         required: false
         type: string
     secrets:
-      QUAY_PASSWORD:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
         required: true
 
 defaults:
@@ -99,13 +101,13 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libvirt-dev
-      - name: Login to quay Container Registry
-        if: ${{ startsWith(inputs.registry, 'quay.io') }}
+      - name: Login to Docker Hub
+        if: ${{ startsWith(inputs.registry, 'docker.io') }}
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ inputs.registry }}
-          username: ${{ vars.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to Github Container Registry
         if: ${{ startsWith(inputs.registry, 'ghcr.io') }}

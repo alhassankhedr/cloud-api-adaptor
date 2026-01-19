@@ -28,7 +28,9 @@ on:
     secrets:
       AWS_IAM_ROLE_ARN:
         required: true
-      QUAY_PASSWORD:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
         required: true
       REGISTRY_CREDENTIAL_ENCODED:
         required: true
@@ -58,7 +60,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   podvm_binaries:
     needs: [podvm_builder]
@@ -71,7 +74,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   podvm:
     needs: [podvm_binaries]
@@ -84,7 +88,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   podvm_mkosi_amd64:
     uses: ./.github/workflows/podvm_mkosi.yaml
@@ -100,7 +105,8 @@ jobs:
       id-token: write
       attestations: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   podvm_mkosi_s390x:
     uses: ./.github/workflows/podvm_mkosi.yaml
@@ -117,7 +123,8 @@ jobs:
       attestations: write
       id-token: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   # Build and push the cloud-api-adaptor image
   #
@@ -143,7 +150,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   # Edit the kustomize files under the install directory to reference the
   # built cloud-api-adaptor images. The entire directory is archived so that
@@ -280,7 +288,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   caa_image_s390x:
     uses: ./.github/workflows/caa_build_and_push.yaml
@@ -296,7 +305,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   libvirt_e2e_arch_prep:
     runs-on: ubuntu-24.04
@@ -381,4 +391,5 @@ jobs:
       install_directory_artifact: install_directory
       git_ref: ${{ inputs.git_ref }}
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

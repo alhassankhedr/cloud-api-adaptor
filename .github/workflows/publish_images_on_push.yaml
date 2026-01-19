@@ -26,7 +26,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   csi-wrapper:
     uses: ./.github/workflows/csi_wrapper_images.yaml
@@ -37,7 +38,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   peerpod-ctrl:
     uses: ./.github/workflows/peerpod-ctrl_image.yaml
@@ -49,7 +51,8 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   webhook:
     uses: ./.github/workflows/webhook_image.yaml
@@ -60,4 +63,5 @@ jobs:
       contents: read
       packages: write
     secrets:
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
